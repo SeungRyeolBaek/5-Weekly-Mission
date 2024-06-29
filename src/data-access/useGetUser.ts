@@ -1,6 +1,6 @@
 import { useAsync, instance } from "@/src/util";
 import { UserRawData } from "@/src/type";
-
+import { DEFAULT_USER } from "@/src/util";
 
 /**
  * useGetUser 훅은 사용자 데이터를 가져와 반환합니다.
@@ -28,8 +28,20 @@ import { UserRawData } from "@/src/type";
  *   </div>
  * );
  */
-export const useGetUser = () => {
-  const getUser = () => instance.get<{ data: UserRawData }>("sample/user");
-  const { loading, error, data } = useAsync(getUser);
-  return { loading, error, data: data?.data ?? null };
-};
+export const useGetUser = (userId?: number) => {
+	const getUser = () =>
+	  instance.get<{ data: UserRawData[] }>(`users${userId ? `/${userId}` : ""}`);
+	const { loading, error, data } = useAsync({ asyncFunction: getUser, enabled: !!userId });
+  
+	const userDataResponse = data?.data?.[0];
+	const userData = userDataResponse
+	  ? {
+		  id: userDataResponse.id,
+		  name: userDataResponse.name,
+		  email: userDataResponse.email,
+		  imageSource: userDataResponse.image_source,
+		}
+	  : DEFAULT_USER;
+  
+	return { loading, error, data: userData };
+  };
