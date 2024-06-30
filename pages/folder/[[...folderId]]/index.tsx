@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { CardList, FolderToolBar, LinkForm } from "@/src/feature";
 import { Layout, SearchBar } from "@/src/ui";
 import { FolderLayout } from "@/src/page-layout/FolderLayout";

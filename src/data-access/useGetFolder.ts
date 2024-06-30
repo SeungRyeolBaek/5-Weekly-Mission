@@ -1,5 +1,6 @@
+import { instance, DEFAULT_FOLDER } from "../util";
 import { FolderRawData } from "../type";
-import { DEFAULT_FOLDER, instance, useAsync } from "../util";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * useGetFolder 훅은 샘플 폴더 데이터를 가져와서 매핑된 폴더 데이터를 반환합니다.
@@ -38,22 +39,24 @@ import { DEFAULT_FOLDER, instance, useAsync } from "../util";
  * );
  */
 export const useGetFolder = (folderId: string) => {
-  const getFolder = () =>
-    instance.get<{ data: FolderRawData[] }>(`folders/${folderId}`);
-  const { loading, error, data } = useAsync({
-    asyncFunction: getFolder,
-    enabled: !!folderId,
-  });
-  const folderDataResponse = data?.data?.[0];
-
-  const folderData = folderDataResponse
-    ? {
-        id: folderDataResponse.id,
-        name: folderDataResponse.name,
-        userId: folderDataResponse.user_id,
-        createdAt: folderDataResponse.created_at,
-      }
-    : DEFAULT_FOLDER;
-
-  return { loading, error, data: folderData };
-};
+	const getFolder = () => instance.get<FolderRawData[]>(`/folders/${folderId}`);
+  
+	const { data, error, isLoading } = useQuery({
+	  queryKey: ["folders", folderId],
+	  queryFn: getFolder,
+	  enabled: !!folderId,
+	});
+  
+	const folderDataResponse = data?.data?.[0];
+  
+	const folderData = folderDataResponse
+	  ? {
+		  id: folderDataResponse.id,
+		  name: folderDataResponse.name,
+		  userId: folderDataResponse.user_id,
+		  createdAt: folderDataResponse.created_at,
+		}
+	  : DEFAULT_FOLDER;
+  
+	return { isLoading, error, data: folderData };
+  };

@@ -1,6 +1,7 @@
-import { useAsync, instance } from "@/src/util";
+import { instance } from "@/src/util";
 import { UserRawData } from "@/src/type";
 import { DEFAULT_USER } from "@/src/util";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * useGetUser 훅은 사용자 데이터를 가져와 반환합니다.
@@ -28,10 +29,15 @@ import { DEFAULT_USER } from "@/src/util";
  *   </div>
  * );
  */
+
 export const useGetUser = (userId?: number) => {
-	const getUser = () =>
-	  instance.get<{ data: UserRawData[] }>(`users${userId ? `/${userId}` : ""}`);
-	const { loading, error, data } = useAsync({ asyncFunction: getUser, enabled: !!userId });
+	const getUser = () => instance.get<UserRawData[]>(`/users/${userId}`);
+  
+	const { isLoading, error, data } = useQuery({
+	  queryKey: ["users", userId],
+	  queryFn: getUser,
+	  enabled: !!userId,
+	});
   
 	const userDataResponse = data?.data?.[0];
 	const userData = userDataResponse
@@ -43,5 +49,5 @@ export const useGetUser = (userId?: number) => {
 		}
 	  : DEFAULT_USER;
   
-	return { loading, error, data: userData };
+	return { isLoading, error, data: userData };
   };
